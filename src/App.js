@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -11,33 +11,11 @@ function App() {
   const [stats, setStats] = useState({ total_alerts: 0, suspicious: 0, normal: 0, suspicious_percentage: 0 });
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'http://localhost:8000';
-
-  // Login function
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-
-      const response = await axios.post(`${API_URL}/token`, formData, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      });
-
-      setToken(response.data.access_token);
-      setIsLoggedIn(true);
-      alert('Login successful!');
-    } catch (error) {
-      console.error('Login failed:', error);
-      alert('Login failed. Check your credentials.');
-    }
-    setLoading(false);
-  };
+  // Use your Railway API URL
+  const API_URL = 'https://web-production-30aa2.up.railway.app';
 
   // Fetch alerts
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     try {
       const response = await axios.get(`${API_URL}/alerts`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -46,10 +24,10 @@ function App() {
     } catch (error) {
       console.error('Failed to fetch alerts:', error);
     }
-  };
+  }, [token]);
 
   // Fetch stats
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await axios.get(`${API_URL}/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -58,7 +36,7 @@ function App() {
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
-  };
+  }, [token]);
 
   // Delete alert
   const deleteAlert = async (id) => {
@@ -80,7 +58,30 @@ function App() {
       fetchAlerts();
       fetchStats();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, fetchAlerts, fetchStats]);
+
+  // Login function
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+      
+      const response = await axios.post(`${API_URL}/token`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+      
+      setToken(response.data.access_token);
+      setIsLoggedIn(true);
+      alert('Login successful!');
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed. Check your credentials.');
+    }
+    setLoading(false);
+  };
 
   // Register function
   const handleRegister = async (e) => {
@@ -193,10 +194,10 @@ function App() {
                       Delete
                     </button>
                   </td>
-                 </tr>
+                </tr>
               ))}
             </tbody>
-           </table>
+          </table>
         )}
       </div>
     </div>

@@ -1,6 +1,6 @@
 # 🛡️ Threat Alert Dashboard
 
-A real-time dashboard for managing cybersecurity threat alerts, built with React and connected to a live FastAPI backend.
+A real-time dashboard for managing cybersecurity threat alerts, built with React, TypeScript, and connected to a live FastAPI backend.
 
 ## 🌐 Live Demo
 
@@ -15,6 +15,17 @@ A real-time dashboard for managing cybersecurity threat alerts, built with React
 - Interactive alerts table with delete functionality
 - Responsive design
 - Connected to live PostgreSQL database
+- Type-safe React with TypeScript
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+|----------|--------------|
+| Frontend | React, TypeScript, Axios, CSS |
+| Backend | FastAPI, Python, JWT |
+| Database | PostgreSQL |
+| Deployment | Vercel (frontend), Railway (backend) |
+| Containerization | Docker, Docker Hub |
 
 ## 🚀 Quick Start (Local Development)
 
@@ -25,7 +36,8 @@ A real-time dashboard for managing cybersecurity threat alerts, built with React
 
 ### Installation
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/Aikaksh-Singh-Routela/threat-dashboard.git
-   cd threat-dashboard
+```bash
+git clone https://github.com/Aikaksh-Singh-Routela/threat-dashboard.git
+cd threat-dashboard
+npm install
+npm start

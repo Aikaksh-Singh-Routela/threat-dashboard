@@ -1,51 +1,67 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios, { AxiosError } from 'axios';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './App.css';
-import { Alert, Stats, TokenResponse } from './types';
 
 function App() {
-  const [token, setToken] = useState<string>('');
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [stats, setStats] = useState<Stats>({
-    total_alerts: 0,
-    suspicious: 0,
-    normal: 0,
-    suspicious_percentage: 0
-  });
-  const [loading, setLoading] = useState<boolean>(false);
+  const [token, setToken] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [alerts, setAlerts] = useState([]);
+  const [stats, setStats] = useState({ total_alerts: 0, suspicious: 0, normal: 0, suspicious_percentage: 0 });
+  const [loading, setLoading] = useState(false);
 
-  // Use your Railway API URL
-  const API_URL: string = 'https://web-production-30aa2.up.railway.app';
+  const API_URL = 'http://localhost:8000';
+
+  // Login function
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+
+      const response = await axios.post(`${API_URL}/token`, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+
+      setToken(response.data.access_token);
+      setIsLoggedIn(true);
+      alert('Login successful!');
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed. Check your credentials.');
+    }
+    setLoading(false);
+  };
 
   // Fetch alerts
-  const fetchAlerts = useCallback(async (): Promise<void> => {
+  const fetchAlerts = async () => {
     try {
-      const response = await axios.get<Alert[]>(`${API_URL}/alerts`, {
+      const response = await axios.get(`${API_URL}/alerts`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAlerts(response.data);
     } catch (error) {
       console.error('Failed to fetch alerts:', error);
     }
-  }, [token]);
+  };
 
   // Fetch stats
-  const fetchStats = useCallback(async (): Promise<void> => {
+  const fetchStats = async () => {
     try {
-      const response = await axios.get<Stats>(`${API_URL}/stats`, {
+      const response = await axios.get(`${API_URL}/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setStats(response.data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
-  }, [token]);
+  };
 
   // Delete alert
-  const deleteAlert = async (id: number): Promise<void> => {
+  const deleteAlert = async (id) => {
     try {
       await axios.delete(`${API_URL}/alerts/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -64,34 +80,11 @@ function App() {
       fetchAlerts();
       fetchStats();
     }
-  }, [isLoggedIn, fetchAlerts, fetchStats]);
-
-  // Login function
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-
-      const response = await axios.post<TokenResponse>(`${API_URL}/token`, formData, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      });
-
-      setToken(response.data.access_token);
-      setIsLoggedIn(true);
-      alert('Login successful!');
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      console.error('Login failed:', axiosError);
-      alert('Login failed. Check your credentials.');
-    }
-    setLoading(false);
-  };
+  }, [isLoggedIn]);
 
   // Register function
-  const handleRegister = async (): Promise<void> => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
     setLoading(true);
     try {
       await axios.post(`${API_URL}/register`, {
@@ -100,8 +93,7 @@ function App() {
       });
       alert('Registration successful! You can now login.');
     } catch (error) {
-      const axiosError = error as AxiosError;
-      console.error('Registration failed:', axiosError);
+      console.error('Registration failed:', error);
       alert('Registration failed. Username may already exist.');
     }
     setLoading(false);
@@ -113,7 +105,7 @@ function App() {
         <h1>🔐 Threat Alert Dashboard</h1>
         <div className="login-card">
           <h2>Login</h2>
-          <form onSubmit={handleLogin}>
+          <form>
             <input
               type="text"
               placeholder="Username"
@@ -126,7 +118,7 @@ function App() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit" disabled={loading}>
+            <button onClick={handleLogin} disabled={loading}>
               {loading ? 'Loading...' : 'Login'}
             </button>
           </form>
@@ -188,7 +180,7 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {alerts.map((alert: Alert) => (
+              {alerts.map((alert) => (
                 <tr key={alert.id} className={alert.is_suspicious ? 'suspicious-row' : 'normal-row'}>
                   <td>{alert.id}</td>
                   <td>{alert.source_ip}</td>
@@ -201,10 +193,10 @@ function App() {
                       Delete
                     </button>
                   </td>
-                </tr>
+                 </tr>
               ))}
             </tbody>
-          </table>
+           </table>
         )}
       </div>
     </div>

@@ -17,6 +17,12 @@ A real-time dashboard for managing cybersecurity threat alerts, built with React
 - Connected to live PostgreSQL database
 - Type-safe React with TypeScript
 
+## Screenshot
+
+![Threat Alert Dashboard](./dashboard-screenshot.png)
+
+*Dashboard showing threat alerts with statistics cards and alerts table.*
+
 ## 🛠️ Tech Stack
 
 | Category | Technologies |
